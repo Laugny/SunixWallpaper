@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 3.21)
 project(st2-wallpaper-geode-main LANGUAGES CXX)
 
-# C++17 ist am problemlosesten über alle Targets
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Geode-SDK laden (per ENV wie bisher)
+# Geode-SDK laden
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")
 else()
@@ -13,17 +12,13 @@ else()
 endif()
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 
-# Quellen explizit angeben (verhindert versehentliches Mitbauen von main_old.cpp)
 set(MOD_SOURCES
   src/main.cpp
 )
 
-# Geode-Ziel erzeugen (statt add_library + setup_geode_mod)
-geode_add_mod(st2-wallpaper-geode-main
-  SOURCES ${MOD_SOURCES}
-)
+add_library(${PROJECT_NAME} SHARED ${MOD_SOURCES})
+setup_geode_mod(${PROJECT_NAME})
 
-# MSVC-CRT dynamisch (/MD), vermeidet /MT-Mismatch
 if(MSVC)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 endif()
